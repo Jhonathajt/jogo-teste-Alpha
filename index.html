@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Desviar Obstáculos</title>
+    <style>
+        body { text-align: center; }
+        canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <h1>Jogo de Desviar Obstáculos</h1>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        let player = { x: 50, y: 180, width: 20, height: 20, dy: 0 };
+        let obstacles = [];
+        let gameOver = false;
+        
+        function update() {
+            if (gameOver) return;
+            player.y += player.dy;
+            player.dy += 0.5;
+            if (player.y + player.height > canvas.height) player.y = canvas.height - player.height;
+            
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].x -= 2;
+                if (
+                    player.x < obstacles[i].x + obstacles[i].width &&
+                    player.x + player.width > obstacles[i].x &&
+                    player.y < obstacles[i].y + obstacles[i].height &&
+                    player.y + player.height > obstacles[i].y
+                ) {
+                    gameOver = true;
+                    alert("Game Over! Recarregue para tentar novamente.");
+                }
+            }
+            if (Math.random() < 0.02) {
+                obstacles.push({ x: 400, y: Math.random() * 350, width: 20, height: 20 });
+            }
+            obstacles = obstacles.filter(o => o.x > -20);
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "blue";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.fillStyle = "red";
+            obstacles.forEach(o => ctx.fillRect(o.x, o.y, o.width, o.height));
+        }
+        
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        
+        document.addEventListener("keydown", () => { player.dy = -7; });
+        loop();
+    </script>
+</body>
+</html>
